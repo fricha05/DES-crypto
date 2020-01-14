@@ -115,21 +115,57 @@ bigKey = [
 #crée les 16 sous clés à partir de k
 def creation_sous_cles(key):
     res = []
-    for row in key :
-        del(row[len(row)-1])
-        res.append(row)
+    for row in range(len(key)) :
+        new = []
+        for e in range(len(key[row])-1) :
+            new.append(key[row][e])
+        res.append(new)
     return res
 
 reductedKey = creation_sous_cles(bigKey)
+bigKey
 reductedKey
 
-def concat_sous_clefs(keys):
+#concatène tous les éléments d'une clé
+def concat_clefs(keys):
     res = []
     for row in keys :
         res.extend(row)
     return res
 
-concat_sous_clefs(reductedKey)
+concat_clefs(reductedKey)
+
+#effectue une permutation en fonction de la clé sur 56 bits key obtenue depuis la clé 64 bits bigKey et de la table de permutation cp
+def permutation(key, bigKey, cp):
+    res = []
+    tmp = concat_clefs(bigKey)
+    key=concat_clefs(key)
+    print(key)
+    print(tmp)
+    for pos in range (len(key)) :
+        res.append(tmp[cp[pos]-1])
+    return res
+
+bigKey
+reductedKey
+permutated_key = permutation(reductedKey, bigKey, PC1)
+permutated_key
+
+#separe une cle en 2 cle gauche et droites
+def split_key(key):
+    res = []
+    left = []
+    right = []
+    size = len(key)
+    for i in range(size//2):
+        left.append(key[i])
+    for i in range(size//2, size):
+        right.append(key[i])
+    res.append(left)
+    res.append(right)
+    return res
+
+splitted_key = split_key(permutated_key)
 
 #décale la clé de n bits vers la gauche
 def decalage_gauche_par_n_bits(n, key):
@@ -141,5 +177,5 @@ def decalage_gauche_par_n_bits(n, key):
             tmp[pos] = key[pos+n]
     return tmp
 
-key = [1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,0,0,1,0,0,0,1,1,1,1]
-decalage_gauche_par_n_bits(1, key)
+decalage_gauche_par_n_bits(1, splitted_key[0])
+decalage_gauche_par_n_bits(1, splitted_key[1])
