@@ -136,9 +136,9 @@ def concat_clefs(keys):
 # concat_clefs(reductedKey)
 
 #effectue une permutation en fonction de la clé sur 56 bits key obtenue depuis la clé 64 bits bigKey et de la table de permutation cp
-def permutation_1(key, bigKey):
+def permutation_1(key):
     res = []
-    tmp = concat_clefs(bigKey)
+    tmp = concat_clefs(key)
     for pos in range (len(PC1)) :
         res.append(tmp[PC1[pos]-1])
     return res
@@ -194,12 +194,43 @@ def generation_sous_clefs(bigKey, left, right):
 
 
 
-def chiffrement(fullKey):
-    keys = creation_sous_cles_utiles(fullKey)
-    cp1_key = permutation_1(keys, fullKey)
+def sous_clefs_depuis_cle_complete(fullKey):
+    # keys = creation_sous_cles_utiles(fullKey)
+    cp1_key = permutation_1(fullKey)
     cp1_left = split_key(cp1_key)[0]
     cp1_right = split_key(cp1_key)[1]
     res = generation_sous_clefs(fullKey, cp1_left, cp1_right)
     return res
 
-print("Chiffrement : \n" + str(chiffrement(bigKey)))
+print("Sous clefs : \n" + str(sous_clefs_depuis_cle_complete(bigKey)))
+
+M = [
+    1,1,0,1,1,1,0,0,1,0,1,1,1,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,
+    1,1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,0,0,0,1,0,0,0,1,1,0,0,1,0,
+    1,0,0,1,1,1,0,1,0,0,1,0,1,0,1,1,0,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,
+    0,0,1,1,1,0,1,0,1,1,0,1,1,1,1,1
+]
+
+def message_divider(m):
+    blocs = []
+
+    full_paquets_count = len(m)//64
+    for i in range(full_paquets_count+1) :
+        new = []
+        for j in range(64):
+            if( i*64+j < len(m) ):
+                new.append(m[i*64+j])
+            else:
+                new.append(0)
+        blocs.append(new)
+    return blocs
+
+divided = message_divider(M)
+
+def permutation_initial(bloc) :
+    res = []
+    for pos in range (len(IP)) :
+        res.append(bloc[IP[pos]-1])
+    return res
+
+permutation_initial(divided[0])
