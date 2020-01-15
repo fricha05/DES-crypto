@@ -113,7 +113,7 @@ bigKey = [
 ]
 
 #crée les 16 sous clés à partir de k
-def creation_sous_cles(key):
+def creation_sous_cles_utiles(key):
     res = []
     for row in range(len(key)) :
         new = []
@@ -122,9 +122,9 @@ def creation_sous_cles(key):
         res.append(new)
     return res
 
-reductedKey = creation_sous_cles(bigKey)
-bigKey
-reductedKey
+# reductedKey = creation_sous_cles(bigKey)
+# bigKey
+# reductedKey
 
 #concatène tous les éléments d'une clé
 def concat_clefs(keys):
@@ -133,23 +133,27 @@ def concat_clefs(keys):
         res.extend(row)
     return res
 
-concat_clefs(reductedKey)
+# concat_clefs(reductedKey)
 
 #effectue une permutation en fonction de la clé sur 56 bits key obtenue depuis la clé 64 bits bigKey et de la table de permutation cp
-def permutation(key, bigKey, cp):
+def permutation_1(key, bigKey):
     res = []
     tmp = concat_clefs(bigKey)
-    key=concat_clefs(key)
-    print(key)
-    print(tmp)
-    for pos in range (len(key)) :
-        res.append(tmp[cp[pos]-1])
+    for pos in range (len(PC1)) :
+        res.append(tmp[PC1[pos]-1])
     return res
 
-bigKey
-reductedKey
-permutated_key = permutation(reductedKey, bigKey, PC1)
-permutated_key
+def permutation_2(key):
+    res = []
+    tmp = concat_clefs(key)
+    for pos in range (len(PC2)) :
+        res.append(tmp[PC2[pos]-1])
+    return res
+
+# bigKey
+# reductedKey
+# permutated_key = permutation(reductedKey, bigKey, PC1)
+# permutated_key
 
 #separe une cle en 2 cle gauche et droites
 def split_key(key):
@@ -165,17 +169,37 @@ def split_key(key):
     res.append(right)
     return res
 
-splitted_key = split_key(permutated_key)
+# splitted_key = split_key(permutated_key)
 
 #décale la clé de n bits vers la gauche
 def decalage_gauche_par_n_bits(n, key):
-    tmp = key
+    tmp = []
     for pos in range (len(key)) :
         if(pos == len(key)-1):
-            tmp[pos] = tmp[0]
+            tmp.append(key[0])
         else :
-            tmp[pos] = key[pos+n]
+            tmp.append(key[pos+n])
     return tmp
 
-decalage_gauche_par_n_bits(1, splitted_key[0])
-decalage_gauche_par_n_bits(1, splitted_key[1])
+def generation_sous_clefs(bigKey, left, right):
+    sous_clefs = []
+    for ronde in range(16):
+        left = decalage_gauche_par_n_bits(1, left)
+        right = decalage_gauche_par_n_bits(1, right)
+        k = permutation_2(([left, right]))
+        sous_clefs.append(k)
+    return sous_clefs
+
+# generation_sous_clefs(bigKey, splitted_key[0], splitted_key[1])
+
+
+
+def chiffrement(fullKey):
+    keys = creation_sous_cles_utiles(fullKey)
+    cp1_key = permutation_1(keys, fullKey)
+    cp1_left = split_key(cp1_key)[0]
+    cp1_right = split_key(cp1_key)[1]
+    res = generation_sous_clefs(fullKey, cp1_left, cp1_right)
+    return res
+
+print("Chiffrement : \n" + str(chiffrement(bigKey)))
