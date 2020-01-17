@@ -1,3 +1,5 @@
+import math
+
 #Récupère un tableau associatif avec les constantes du chiffrement DES
 def recupConstantesDES() :
 	f=open("ConstantesDES.txt", "r")

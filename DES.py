@@ -1,3 +1,6 @@
+import operator
+from Bonus.ConvAlphaBin import *
+
 IP = [
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
@@ -18,6 +21,14 @@ IP_INV = [
     34,  2, 42, 10, 50, 18, 58, 26,
     33,  1, 41,  9, 49, 17, 57, 25
 ]
+
+P = [
+    16, 7, 20, 21, 29, 12, 28, 17,
+    1, 15, 23, 26, 5, 18, 31, 10,
+    2, 8, 24, 14, 32, 27, 3, 9,
+    19, 13, 30, 6, 22, 11, 4, 25,
+]
+
 PC1 = [
     57, 49, 41, 33, 25, 17, 9,
     1,  58, 50, 42, 34, 26, 18,
@@ -49,57 +60,48 @@ E  = [
     24, 25, 26, 27, 28, 29,
     28, 29, 30, 31, 32, 1
 ]
- 
-Sboxes = {
-    0: [
-        14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7,
-        0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8,
-        4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0,
-        15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13
-    ],
-    1: [
-        15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10,
-        3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5,
-        0, 14,  7, 11, 10,  4, 13,  1,  5,  8, 12,  6,  9,  3,  2, 15,
-        13,  8, 10,  1,  3, 15,  4,  2, 11,  6,  7, 12,  0,  5, 14,  9 
-    ],
-    2: [
-        10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8,
-        13,  7,  0,  9,  3,  4,  6, 10,  2,  8,  5, 14, 12, 11, 15,  1,
-        13,  6,  4,  9,  8, 15,  3,  0, 11,  1,  2, 12,  5, 10, 14,  7,
-        1, 10, 13,  0,  6,  9,  8,  7,  4, 15, 14,  3, 11,  5,  2, 12 
-    ],
-    3: [
-        7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15,
-        13,  8, 11,  5,  6, 15,  0,  3,  4,  7,  2, 12,  1, 10, 14,  9,
-        10,  6,  9,  0, 12, 11,  7, 13, 15,  1,  3, 14,  5,  2,  8,  4,
-        3, 15,  0,  6, 10,  1, 13,  8,  9,  4,  5, 11, 12,  7,  2, 14
-    ],
-    4: [
-        2, 12,  4,  1,  7, 10, 11,  6,  8,  5,  3, 15, 13,  0, 14,  9,
-        14, 11,  2, 12,  4,  7, 13,  1,  5,  0, 15, 10,  3,  9,  8,  6,
-        4,  2,  1, 11, 10, 13,  7,  8, 15,  9, 12,  5,  6,  3,  0, 14,
-        11,  8, 12,  7,  1, 14,  2, 13,  6, 15,  0,  9, 10,  4,  5,  3
-    ],
-    5: [
-        12,  1, 10, 15,  9,  2,  6,  8,  0, 13,  3,  4, 14,  7,  5, 11,
-        10, 15,  4,  2,  7, 12,  9,  5,  6,  1, 13, 14,  0, 11,  3,  8,
-        9, 14, 15,  5,  2,  8, 12,  3,  7,  0,  4, 10,  1, 13, 11,  6,
-        4,  3,  2, 12,  9,  5, 15, 10, 11, 14,  1,  7,  6,  0,  8, 13
-    ],
-    6: [
-        4, 11,  2, 14, 15,  0,  8, 13,  3, 12,  9,  7,  5, 10,  6,  1,
-        13,  0, 11,  7,  4,  9,  1, 10, 14,  3,  5, 12,  2, 15,  8,  6,
-        1,  4, 11, 13, 12,  3,  7, 14, 10, 15,  6,  8,  0,  5,  9,  2,
-        6, 11, 13,  8,  1,  4, 10,  7,  9,  5,  0, 15, 14,  2,  3, 12
-    ],
-    7: [
-        13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7,
-        1, 15, 13,  8, 10,  3,  7,  4, 12,  5,  6, 11,  0, 14,  9,  2,
-        7, 11,  4,  1,  9, 12, 14,  2,  0,  6, 10, 13, 15,  3,  5,  8,
-        2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11
+
+S = [
+        [14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7],
+        [0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8],
+        [4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0],
+        [15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13]
+    ], [
+        [15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10],
+        [3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5],
+        [0, 14,  7, 11, 10,  4, 13,  1,  5,  8, 12,  6,  9,  3,  2, 15],
+        [13,  8, 10,  1,  3, 15,  4,  2, 11,  6,  7, 12,  0,  5, 14,  9] 
+    ],[
+        [10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8],
+        [13,  7,  0,  9,  3,  4,  6, 10,  2,  8,  5, 14, 12, 11, 15,  1],
+        [13,  6,  4,  9,  8, 15,  3,  0, 11,  1,  2, 12,  5, 10, 14,  7],
+        [1, 10, 13,  0,  6,  9,  8,  7,  4, 15, 14,  3, 11,  5,  2, 12] 
+    ],[
+        [7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15],
+        [13,  8, 11,  5,  6, 15,  0,  3,  4,  7,  2, 12,  1, 10, 14,  9],
+        [10,  6,  9,  0, 12, 11,  7, 13, 15,  1,  3, 14,  5,  2,  8,  4],
+        [3, 15,  0,  6, 10,  1, 13,  8,  9,  4,  5, 11, 12,  7,  2, 14]
+    ],[
+        [2, 12,  4,  1,  7, 10, 11,  6,  8,  5,  3, 15, 13,  0, 14,  9],
+        [14, 11,  2, 12,  4,  7, 13,  1,  5,  0, 15, 10,  3,  9,  8,  6],
+        [4,  2,  1, 11, 10, 13,  7,  8, 15,  9, 12,  5,  6,  3,  0, 14],
+        [11,  8, 12,  7,  1, 14,  2, 13,  6, 15,  0,  9, 10,  4,  5,  3]
+    ],[
+        [12,  1, 10, 15,  9,  2,  6,  8,  0, 13,  3,  4, 14,  7,  5, 11],
+        [10, 15,  4,  2,  7, 12,  9,  5,  6,  1, 13, 14,  0, 11,  3,  8],
+        [9, 14, 15,  5,  2,  8, 12,  3,  7,  0,  4, 10,  1, 13, 11,  6],
+        [4,  3,  2, 12,  9,  5, 15, 10, 11, 14,  1,  7,  6,  0,  8, 13]
+    ],[
+        [4, 11,  2, 14, 15,  0,  8, 13,  3, 12,  9,  7,  5, 10,  6,  1],
+        [13,  0, 11,  7,  4,  9,  1, 10, 14,  3,  5, 12,  2, 15,  8,  6],
+        [1,  4, 11, 13, 12,  3,  7, 14, 10, 15,  6,  8,  0,  5,  9,  2],
+        [6, 11, 13,  8,  1,  4, 10,  7,  9,  5,  0, 15, 14,  2,  3, 12]
+    ],[
+        [13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7],
+        [1, 15, 13,  8, 10,  3,  7,  4, 12,  5,  6, 11,  0, 14,  9,  2],
+        [7, 11,  4,  1,  9, 12, 14,  2,  0,  6, 10, 13, 15,  3,  5,  8],
+        [2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11]
     ]
-}
 
 bigKey = [
     [0,1,0,1,1,1,1,0],
@@ -135,20 +137,27 @@ def concat_clefs(keys):
 
 # concat_clefs(reductedKey)
 
-#effectue une permutation en fonction de la clé sur 56 bits key obtenue depuis la clé 64 bits bigKey et de la table de permutation cp
-def permutation_1(key):
+#prends la clé concaténée e et applique la permutation f
+def permutation_generale(e, f):
     res = []
-    tmp = concat_clefs(key)
-    for pos in range (len(PC1)) :
-        res.append(tmp[PC1[pos]-1])
+    for pos in range (len(f)) :
+        res.append(e[f[pos]-1])
     return res
 
-def permutation_2(key):
-    res = []
-    tmp = concat_clefs(key)
-    for pos in range (len(PC2)) :
-        res.append(tmp[PC2[pos]-1])
-    return res
+#effectue une permutation en fonction de la clé sur 56 bits key obtenue depuis la clé 64 bits bigKey et de la table de permutation cp
+# def permutation_1(key):
+#     res = []
+#     tmp = concat_clefs(key)
+#     for pos in range (len(PC1)) :
+#         res.append(tmp[PC1[pos]-1])
+#     return res
+
+# def permutation_2(key):
+#     res = []
+#     tmp = concat_clefs(key)
+#     for pos in range (len(PC2)) :
+#         res.append(tmp[PC2[pos]-1])
+#     return res
 
 # bigKey
 # reductedKey
@@ -186,7 +195,7 @@ def generation_sous_clefs(bigKey, left, right):
     for ronde in range(16):
         left = decalage_gauche_par_n_bits(1, left)
         right = decalage_gauche_par_n_bits(1, right)
-        k = permutation_2(([left, right]))
+        k = permutation_generale(concat_clefs([left, right]), PC2)
         sous_clefs.append(k)
     return sous_clefs
 
@@ -196,13 +205,14 @@ def generation_sous_clefs(bigKey, left, right):
 
 def sous_clefs_depuis_cle_complete(fullKey):
     # keys = creation_sous_cles_utiles(fullKey)
-    cp1_key = permutation_1(fullKey)
+    cp1_key = permutation_generale(concat_clefs(fullKey), PC1)
     cp1_left = split_key(cp1_key)[0]
     cp1_right = split_key(cp1_key)[1]
     res = generation_sous_clefs(fullKey, cp1_left, cp1_right)
     return res
 
-print("Sous clefs : \n" + str(sous_clefs_depuis_cle_complete(bigKey)))
+# print("Sous clefs : \n" + str(sous_clefs_depuis_cle_complete(bigKey)))
+keys = sous_clefs_depuis_cle_complete(bigKey)
 
 M = [
     1,1,0,1,1,1,0,0,1,0,1,1,1,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,
@@ -210,6 +220,11 @@ M = [
     1,0,0,1,1,1,0,1,0,0,1,0,1,0,1,1,0,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,
     0,0,1,1,1,0,1,0,1,1,0,1,1,1,1,1
 ]
+
+
+# clean_message = str(M).strip('[]').replace(', ', '')
+# print(clean_message)
+# print("Message originel : " + nib_vnoc(clean_message))
 
 def message_divider(m):
     blocs = []
@@ -225,12 +240,131 @@ def message_divider(m):
         blocs.append(new)
     return blocs
 
-divided = message_divider(M)
+# divided = message_divider(M)
 
-def permutation_initial(bloc) :
+# permutated = permutation_generale(divided[0], IP)
+# split_key(permutated)
+
+
+
+def paquets_n_bits(e, n):
     res = []
-    for pos in range (len(IP)) :
-        res.append(bloc[IP[pos]-1])
+    new = []
+    for j in range(len(e)):
+        if(j%n==0):
+            if(j!=0):
+                res.append(new)
+            new = []
+        new.append(e[j])
+    res.append(new)
     return res
 
-permutation_initial(divided[0])
+def ou_exclusif(a, b):
+    res = []
+    for i in range(len(a)):
+        res.append(operator.xor(a[i], b[i]))
+    return res
+
+def binary_to_decimal(n):
+    return int(n,2)
+
+def decimal_to_binary(n):
+    return bin(n).replace("0b","")
+
+def replace_bloc_with_S(b, s):
+    ligne = int(binary_to_decimal(str(b[0]) + str(b[5])))
+    colonne = int(binary_to_decimal(str(b[1]) + str(b[2]) + str(b[3]) + str(b[4])))
+    tmp = decimal_to_binary(s[ligne][colonne])
+    res = []
+    while(len(tmp) + len(res) < 4):
+        res.append(0)
+    for c in str(tmp):
+        res.append(int(c))
+    return res
+
+
+def ronde(bloc, key):
+    splitted = split_key(bloc)
+    G = splitted[0]
+    D = splitted[1]
+    ED = permutation_generale(D, E)
+    XOR = ou_exclusif(ED, key)
+    XOR = paquets_n_bits(XOR, 6)
+    msg = []
+    for b in range(len(XOR)):
+        msg.append(replace_bloc_with_S(XOR[b], S[b]))
+    r = concat_clefs(msg)
+    r = permutation_generale(r, P)
+    newD = ou_exclusif(r, G)
+    newG = D
+    return concat_clefs([[newG], [newD]])
+
+# r = concat_clefs(ronde(permutated, keys[0]))
+
+# print(r)
+
+def chiffrement(m, fullKey):
+    keys = sous_clefs_depuis_cle_complete(fullKey)
+    msg = message_divider(m)
+    res = []
+    for i in range(len(msg)):
+        p = permutation_generale(msg[i], IP)
+        for r in range(16):
+            p = concat_clefs(ronde(p, keys[r]))
+        res.append(permutation_generale(p, IP_INV))
+    return res
+
+# crypted = concat_clefs(chiffrement(M, bigKey))
+# print("Message crypté : " + nib_vnoc(str(crypted).strip('[]').replace(', ', '')))
+
+
+def dechiffrement(m, fullKey):
+    keys = sous_clefs_depuis_cle_complete(fullKey)
+    msg = message_divider(m)
+    res = []
+    for i in range(len(msg)):
+        p = permutation_generale(msg[i], IP)
+        for r in range(16):
+            p = concat_clefs(ronde(p, keys[15 - r]))
+        res.append(permutation_generale(p, IP_INV))
+    return res
+
+# file = open('./Messages/Chiffrement_DES_de_1.txt')
+
+test1 = "Je teste au stérone !? ^_^"
+
+#je convertie le message en binaire
+test_crypt = conv_bin(test1)
+print(test_crypt)
+print(nib_vnoc(test_crypt))
+
+#je convertie le message en liste
+binlist = []
+for c in test_crypt:
+    binlist.append(int(c))
+# print(binlist)
+
+#je chiffre le message
+dc = chiffrement(binlist, bigKey)
+# print(dc)
+
+#je concatène le message
+dc = concat_clefs(dc)
+# print(dc)
+
+#je déchiffre
+res = dechiffrement(dc, bigKey)
+# print("resultat : " + str(res))
+
+#je concatene les clefs
+res = concat_clefs(res)
+# print("resultat : " + str(res))
+
+#je convertie en string
+res = str(res).strip('[]').replace(', ', '')
+print(res)
+print(nib_vnoc(res))
+
+# dc = concat_clefs(chiffrement(binlist, bigKey))
+
+# print("dc : " + str(dc))

@@ -23,12 +23,22 @@ ALPHABET+="\n" #caractère 63 : saut de ligne
 #En binaire ça donne un champ de valeur de 0 à 111111(=1+2+4+8+16+32=63)
 #ALPHABETBINAIRE est un tableau avec les nombres en binaire
 ALPHABETBINAIRE=dict()
-for i in range(0, 64) :
-	x=bin(i)
-	y='00000'+x[2:]
+# for i in range(0, 64) :
+# 	x=bin(i)
+# 	y='00000'+x[2:]
+# 	print(y)
+# 	ALPHABETBINAIRE[i]=""
+# 	for k in range(-6, 0, -1):
+# 		ALPHABETBINAIRE[i]+=y[k]
+
+for i in range(64):
+	x = bin(i).replace("0b", "")
 	ALPHABETBINAIRE[i]=""
-	for k in range(-6, 0, -1)
-	ALPHABETBINAIRE[i]+=y[k]
+	while(len(x) + len(ALPHABETBINAIRE[i]) < 6):
+		ALPHABETBINAIRE[i]+="0"
+	ALPHABETBINAIRE[i] += x
+
+# print(ALPHABETBINAIRE)
 
 #Renvoie la chaine de caractère txt avec uniquement les caractères de l'alphabet.
 def FiltreTXT(txt) :
@@ -77,9 +87,9 @@ def nib_vnoc(txt) :
 	return res
 
 #Test
-txt0 = "Je teste au stérone !? ^_^"
-txt1 = conv_bin(txt0)
-txt2 = nib_vnoc(txt1)
-print(txt0)
-print(txt1)
-print(txt2)
+# txt0 = "Je teste au stérone !? ^_^"
+# txt1 = conv_bin(txt0)
+# txt2 = nib_vnoc(txt1)
+# print(txt0)
+# print(txt1)
+# print(txt2)
