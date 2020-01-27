@@ -144,26 +144,6 @@ def permutation_generale(e, f):
         res.append(e[f[pos]-1])
     return res
 
-#effectue une permutation en fonction de la clé sur 56 bits key obtenue depuis la clé 64 bits bigKey et de la table de permutation cp
-# def permutation_1(key):
-#     res = []
-#     tmp = concat_clefs(key)
-#     for pos in range (len(PC1)) :
-#         res.append(tmp[PC1[pos]-1])
-#     return res
-
-# def permutation_2(key):
-#     res = []
-#     tmp = concat_clefs(key)
-#     for pos in range (len(PC2)) :
-#         res.append(tmp[PC2[pos]-1])
-#     return res
-
-# bigKey
-# reductedKey
-# permutated_key = permutation(reductedKey, bigKey, PC1)
-# permutated_key
-
 #separe une cle en 2 cle gauche et droites
 def split_key(key):
     res = []
@@ -221,11 +201,6 @@ M = [
     0,0,1,1,1,0,1,0,1,1,0,1,1,1,1,1
 ]
 
-
-# clean_message = str(M).strip('[]').replace(', ', '')
-# print(clean_message)
-# print("Message originel : " + nib_vnoc(clean_message))
-
 def message_divider(m):
     blocs = []
 
@@ -239,13 +214,6 @@ def message_divider(m):
                 new.append(0)
         blocs.append(new)
     return blocs
-
-# divided = message_divider(M)
-
-# permutated = permutation_generale(divided[0], IP)
-# split_key(permutated)
-
-
 
 def paquets_n_bits(e, n):
     res = []
@@ -299,9 +267,6 @@ def ronde(bloc, key):
     newG = D
     return concat_clefs([[newG], [newD]])
 
-# r = concat_clefs(ronde(permutated, keys[0]))
-
-# print(r)
 
 def chiffrement(m, fullKey):
     keys = sous_clefs_depuis_cle_complete(fullKey)
@@ -314,9 +279,21 @@ def chiffrement(m, fullKey):
         res.append(permutation_generale(p, IP_INV))
     return res
 
-# crypted = concat_clefs(chiffrement(M, bigKey))
-# print("Message crypté : " + nib_vnoc(str(crypted).strip('[]').replace(', ', '')))
-
+def rondeDecrypt(bloc, key):
+    splitted = split_key(bloc)
+    D = splitted[0]
+    G = splitted[1]
+    ED = permutation_generale(D, E)
+    XOR = ou_exclusif(ED, key)
+    XOR = paquets_n_bits(XOR, 6)
+    msg = []
+    for b in range(len(XOR)):
+        msg.append(replace_bloc_with_S(XOR[b], S[b]))
+    r = concat_clefs(msg)
+    r = permutation_generale(r, P)
+    newD = ou_exclusif(r, G)
+    newG = D
+    return concat_clefs([[newD], [newG]])
 
 def dechiffrement(m, fullKey):
     keys = sous_clefs_depuis_cle_complete(fullKey)
@@ -325,46 +302,22 @@ def dechiffrement(m, fullKey):
     for i in range(len(msg)):
         p = permutation_generale(msg[i], IP)
         for r in range(16):
-            p = concat_clefs(ronde(p, keys[15 - r]))
+            p = concat_clefs(rondeDecrypt(p, keys[15 - r]))
         res.append(permutation_generale(p, IP_INV))
     return res
 
-# file = open('./Messages/Chiffrement_DES_de_1.txt')
+cryptedM = concat_clefs(chiffrement(M, bigKey))
 
-test1 = "Je teste au stérone !? ^_^"
+print("M in binary : " + str(M).strip('[]').replace(', ', ''))
 
-#je convertie le message en binaire
-test_crypt = conv_bin(test1)
-print(test_crypt)
-print(nib_vnoc(test_crypt))
+print("M : " + nib_vnoc(str(M).strip('[]').replace(', ', '')))
 
-#je convertie le message en liste
-binlist = []
-for c in test_crypt:
-    binlist.append(int(c))
-# print(binlist)
+print("cryptedM : " + str(cryptedM).strip('[]').replace(', ', ''))
 
-#je chiffre le message
-dc = chiffrement(binlist, bigKey)
-# print(dc)
+print("cryptedM in text : " + nib_vnoc(str(cryptedM).strip('[]').replace(', ', '')))
 
-#je concatène le message
-dc = concat_clefs(dc)
-# print(dc)
+decryptedM = concat_clefs(dechiffrement(cryptedM, bigKey))
 
-#je déchiffre
-res = dechiffrement(dc, bigKey)
-# print("resultat : " + str(res))
+print("decryptedM : " + str(decryptedM).strip('[]').replace(', ', ''))
 
-#je concatene les clefs
-res = concat_clefs(res)
-# print("resultat : " + str(res))
-
-#je convertie en string
-res = str(res).strip('[]').replace(', ', '')
-print(res)
-print(nib_vnoc(res))
-
-# dc = concat_clefs(chiffrement(binlist, bigKey))
-
-# print("dc : " + str(dc))
+print("final res : " + str(nib_vnoc(str(decryptedM).strip('[]').replace(', ', ''))))
